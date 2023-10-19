@@ -1,0 +1,4 @@
+GROUP_ID="gyno-consumer"
+# ADMIN_REQ="admin-req"
+GYNO_REQ="gyno-req"
+POLLING_INTERVAL=1.0
