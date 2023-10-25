@@ -48,17 +48,53 @@ service /byron on new graphql:Listener(5588) {
 
     /// HOD 
     // create objective (mutation)
-    remote function createObjective() returns string|error {
-        return "";
+    remote function createObjective(Objective newObjective) returns string|error {
+        map<json> doc = <map<json>>newObjective.toJson();
+        _ = check db->insert(doc, objectiveCollection, "");
+        return string `${newObjective.name} added successfully`;
     }
+
+
     // delete objective (mutation)
-    remote function deleteObjective() returns string|error {
-        return "";
+    remote function deleteObjective(string id) returns string|error {
+       mongodb:Error|int deleteObjective = db->delete(objectiveCollection, "", {id: id}, false);
+       if deleteObjective is mongoddb:Error {
+        return error("Failed to delete objective");
+       }  else {
+        if deleteObjective > 0 {
+            return string `${id} deleted successfully`;
+        } else {
+            return string `objective unavailable`;
+        }
+       }
     }
+
 
     // view employee total scores (query)
     resource function get viewAllEmployeeTotalScores() {
-        
+        // implement logic to get and calc total scores for all emp
+
+        map<json>[] employees = check db->find(userCollection, S34, {role: "EMP"}, {});
+
+        var employeeTotalScores = [EmployessTotalScores]{};
+
+        foreach var employee in employees {
+            string usernmae = employee.username;
+
+            map<json>[] kpis = check db->find(kpiCollection, S34, {employeeUsername: username}, {});
+
+            // calc total scores
+            float total_scores = 0.0;
+            foreach var kpi in kpis {
+                float grade = kpi.grade;
+                total_score += grade;
+
+                EmployeeTotalScore totalScoreObj = { username: username, total_score: total_score };
+                employeeTotalScores.push(totalScoreObj);
+            }
+
+            return employeeTotalScores;
+        }
     }
 
     // assign employee to supervisor (mutation)
