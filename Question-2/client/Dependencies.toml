@@ -119,29 +119,15 @@ modules = [
 ]
 
 [[package]]
-org = "ballerinax"
-name = "mongodb"
-version = "4.3.0"
-dependencies = [
-	{org = "ballerina", name = "crypto"},
-	{org = "ballerina", name = "jballerina.java"}
-]
-modules = [
-	{org = "ballerinax", packageName = "mongodb", moduleName = "mongodb"}
-]
-
-[[package]]
 org = "nimrod"
-name = "gyno_service"
+name = "client"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "io"},
 	{org = "ballerinai", name = "observe"},
-	{org = "ballerinax", name = "kafka"},
-	{org = "ballerinax", name = "mongodb"}
+	{org = "ballerinax", name = "kafka"}
 ]
 modules = [
-	{org = "nimrod", packageName = "gyno_service", moduleName = "gyno_service"},
-	{org = "nimrod", packageName = "gyno_service", moduleName = "gyno_service.data_source"}
+	{org = "nimrod", packageName = "client", moduleName = "client"}
 ]
 
