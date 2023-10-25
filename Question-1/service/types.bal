@@ -17,7 +17,7 @@ type KPI record {|
     string id;
     string name;
     string content;
-    time:Date date_created;
+    time:Utc date_created;
     float weight;
     float grade;
     string unit;

@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/graphql;
+import ballerina/time;
 import ballerinax/mongodb;
 
 configurable string MONGO_HOST = ?;
@@ -36,6 +37,7 @@ service /byron on new graphql:Listener(5588) {
     function init() {
         do {
             self.db = check new (mongoConfig);
+
         } on fail var e {
             io:println(string `Error occurred: ${e.message()}`);
         }
@@ -43,8 +45,8 @@ service /byron on new graphql:Listener(5588) {
     }
     // Login
     resource function get login(string staff_id, int pin, JobTitle role) {
-        
-    } 
+
+    }
 
     /// HOD 
     // create objective (mutation)
@@ -72,29 +74,7 @@ service /byron on new graphql:Listener(5588) {
 
     // view employee total scores (query)
     resource function get viewAllEmployeeTotalScores() {
-        // implement logic to get and calc total scores for all emp
 
-        map<json>[] employees = check db->find(userCollection, S34, {role: "EMP"}, {});
-
-        var employeeTotalScores = [EmployessTotalScores]{};
-
-        foreach var employee in employees {
-            string usernmae = employee.username;
-
-            map<json>[] kpis = check db->find(kpiCollection, S34, {employeeUsername: username}, {});
-
-            // calc total scores
-            float total_scores = 0.0;
-            foreach var kpi in kpis {
-                float grade = kpi.grade;
-                total_score += grade;
-
-                EmployeeTotalScore totalScoreObj = { username: username, total_score: total_score };
-                employeeTotalScores.push(totalScoreObj);
-            }
-
-            return employeeTotalScores;
-        }
     }
 
     // assign employee to supervisor (mutation)
@@ -120,7 +100,7 @@ service /byron on new graphql:Listener(5588) {
 
     // View Employee Scores. (Only employees assigned to him/her). (query)
     resource function get viewAssingnedEmployeeScores() {
-        
+
     }
 
     // Grade the employee’s KPIs (mutation)
@@ -130,8 +110,38 @@ service /byron on new graphql:Listener(5588) {
 
     /// Employees 
     // Create their KPIs (mutation)
-    remote function createKPI() returns string|error {
-        return "";
+    remote function createKPI(string staff_id, string indicator) returns string|error {
+        // get employee
+        stream<map<json>, error?> data = check self.db->find("users", DB_NAME, {staff_id: staff_id}, {}, {}, 1);
+
+        map<json>[] employees = check from var emp in data
+            where emp.job_title == EMP
+            select emp;
+
+        if employees.length() > 0 {
+            // create KPI
+            KPI kpi = {
+                content: indicator,
+                date_created: time:utcNow(),
+                grade: 0.0,
+                name: indicator,
+                unit: "",
+                weight: 0.0,
+                id: ""
+            };
+            int|mongodb:Error res = self.db->update({...employees[0], kpi}, "users", DB_NAME, {staff_id: staff_id}, false, false);
+
+            if res !is mongodb:Error {
+                if res > 0 {
+                    return "KPI added successfully";
+                } else {
+                    return error("No rows updated");
+                }
+            } else {
+                return error(res.message());
+            }
+        }
+        return error("Employee does not exist");
     }
 
     // Grade their Supervisor (mutation)
@@ -141,7 +151,7 @@ service /byron on new graphql:Listener(5588) {
 
     // View Their Scores (query)
     resource function get viewScores() {
-        
+
     }
 }
 
