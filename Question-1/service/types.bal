@@ -1,3 +1,4 @@
+import ballerina/time;
 type User record {|
     readonly string staff_id;
     string first_name;
@@ -16,9 +17,9 @@ type KPI record {|
     string id;
     string name;
     string content;
-    date date_created;
+    time:Date date_created;
     float weight;
-    float grade
+    float grade;
     string unit;
 |};
 
@@ -39,5 +40,5 @@ type Employees record {|
 type Objective record {|
     string content;
     string created_by;
-    date date_added;
+    time:Date date_added;
 |};
